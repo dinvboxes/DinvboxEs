@@ -186,7 +186,7 @@ export default function IOSCalendar({
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white flex items-center">
               <CalendarIcon className="h-5 w-5 mr-2" />
-              Calendario Fiscal 2025
+              Calendario Fiscal 2026
             </h2>
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/20" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -313,6 +313,20 @@ export default function IOSCalendar({
               )}
             </div>
           </div>
+
+          {/* Disclaimer legal */}
+          <p className="text-xs text-gray-500 mt-4 italic text-center">
+            Calendario orientativo basado en el{" "}
+            
+              href="https://sede.agenciatributaria.gob.es/Sede/calendario-contribuyente.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-700"
+            >
+              Calendario del Contribuyente 2026 de la AEAT
+            </a>
+            . Los vencimientos pueden ajustarse por festivos autonómicos o locales. Consulta siempre la AEAT antes de presentar.
+          </p>
         </div>
 
         <div className="bg-gray-50 p-4 border-t border-gray-200 flex items-center justify-between">
