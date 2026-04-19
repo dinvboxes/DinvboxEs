@@ -26,6 +26,18 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Bloquear scroll del body cuando el menú móvil está abierto
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [mobileMenuOpen])
+
   return (
     <>
       <a href="#main-content" className="sr-only focus:not-sr-only">Saltar al contenido principal</a>
@@ -89,12 +101,16 @@ export default function Header() {
         {/* Mobile menu */}
         <div
           className={cn(
-            "fixed inset-0 z-50 md:hidden transition-transform duration-300 ease-in-out",
+            "fixed inset-0 z-50 md:hidden transition-transform duration-300 ease-in-out flex flex-col",
             mobileMenuOpen ? "translate-x-0" : "translate-x-full",
           )}
           style={{ background: '#FFFFFF' }}
         >
-          <div className="flex h-16 items-center justify-between px-6" style={{ borderBottom: '1px solid var(--line)' }}>
+          {/* Header del menú con logo y cerrar */}
+          <div 
+            className="flex h-16 items-center justify-between px-6 flex-shrink-0" 
+            style={{ borderBottom: '1px solid var(--line)' }}
+          >
             <Link href="/" onClick={() => setMobileMenuOpen(false)}>
               <img src="/logo-dinvbox.svg" alt="Dinvbox" className="h-10 w-auto" />
             </Link>
@@ -108,19 +124,26 @@ export default function Header() {
               <X className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
-          <div className="px-6 py-8 space-y-4">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="block py-3 text-lg font-medium"
-                style={{ color: 'var(--navy)', borderBottom: '1px solid var(--line)' }}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
-            <div className="pt-8 space-y-3">
+
+          {/* Contenido scrollable del menú */}
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <nav className="flex flex-col">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="py-4 text-lg font-medium"
+                  style={{ 
+                    color: 'var(--navy)', 
+                    borderBottom: '1px solid var(--line)' 
+                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+            <div className="mt-8 space-y-3">
               <a 
                 href="https://app.dinvbox.es/login" 
                 className="btn btn-outline w-full justify-center"
