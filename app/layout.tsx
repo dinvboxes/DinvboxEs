@@ -12,13 +12,15 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" })
 
 export const metadata: Metadata = {
-  title: "DINVBOX - Facturacion Electronica Inteligente",
-  description: "Revoluciona tu facturacion electronica con DINVBOX - Simple, Segura, Inteligente",
+  title: "Dinvbox | Facturación electrónica para autónomos y pymes",
+  description: "Emite facturas conformes a Veri*Factu y la nueva factura electrónica obligatoria. Dinvbox traduce la normativa por ti. Tú solo facturas.",
   openGraph: {
-    title: 'DINVBOX - Facturación Electrónica Inteligente',
-    description: 'Revoluciona tu facturación electrónica con DINVBOX - Simple, Segura, Inteligente',
+    title: 'Dinvbox | Facturación electrónica para autónomos y pymes',
+    description: 'Emite facturas conformes a Veri*Factu y la nueva factura electrónica obligatoria. Dinvbox traduce la normativa por ti. Tú solo facturas.',
     url: 'https://www.dinvbox.es',
-    type: 'website'
+    type: 'website',
+    locale: 'es_ES',
+    siteName: 'Dinvbox'
   },
   alternates: { canonical: 'https://www.dinvbox.es' }
 }
