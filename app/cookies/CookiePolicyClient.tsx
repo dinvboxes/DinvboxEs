@@ -38,7 +38,8 @@ export default function CookiePolicyClient() {
       {/* Contenido */}
       <section className="block">
         <div className="container">
-          <div className="max-w-3xl mx-auto legal-content">
+          {/* Añadidas clases text-justify e hyphens-auto aquí */}
+          <div className="max-w-3xl mx-auto legal-content text-justify hyphens-auto">
 
             <h2>1. ¿Qué son las cookies?</h2>
             <p>
@@ -167,7 +168,7 @@ export default function CookiePolicyClient() {
             <h2>7. Contacto</h2>
             <p>
               Para cualquier consulta relacionada con nuestras cookies, puedes escribirnos a:{" "}
-              <a href="mailto:contacto@dinvbox.es">contacto@dinvbox.es</a>
+              <a href="mailto:hola@dinvbox.es">hola@dinvbox.es</a>
             </p>
             <p>
               Para más información sobre el tratamiento de tus datos, consulta nuestra{" "}
