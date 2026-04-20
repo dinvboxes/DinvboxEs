@@ -90,7 +90,7 @@ export function FacturitoChat() {
     }
   }
 
-const handleSendMessage = async () => {
+  const handleSendMessage = async () => {
     if (input.trim() === "" || isLoading) return
 
     const userMessage: Message = { role: "user", content: input.trim() }
@@ -122,23 +122,6 @@ const handleSendMessage = async () => {
     } finally {
       setIsLoading(false)
     }
-  }
-
-    // Add user message
-    const userMessage: Message = { role: "user", content: input.trim() }
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
-
-    // Simulate AI response with a small delay for realism
-    setTimeout(() => {
-      // Use the knowledge base to find the best response
-      const response = findBestMatch(input)
-
-      const assistantMessage: Message = { role: "assistant", content: response }
-      setMessages((prev) => [...prev, assistantMessage])
-      setIsLoading(false)
-    }, 800)
   }
 
   const handleSelectSuggestion = (suggestion: string) => {
