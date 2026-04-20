@@ -236,7 +236,7 @@ export default function Home() {
                 }}
               >
                 {/* Image - adjusted for proper display */}
-                <div className="w-full h-40 overflow-hidden flex items-center justify-center" style={{ background: '#F9FAFB' }}>
+                <div className="w-full h-40 overflow-hidden flex items-center justify-center" style={{ background: '#FFFFFF' }}>
                   <img 
                     src={card.img} 
                     alt={card.idx}
