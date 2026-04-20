@@ -8,7 +8,6 @@ import { X, Send, Loader2, Minimize2, Maximize2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { motion, AnimatePresence } from "framer-motion"
-import { findBestMatch } from "@/data/facturito-knowledge-base"
 import { FacturitoSuggestions } from "@/components/facturito-suggestions"
 
 type Message = {
@@ -91,8 +90,39 @@ export function FacturitoChat() {
     }
   }
 
-  const handleSendMessage = async () => {
+const handleSendMessage = async () => {
     if (input.trim() === "" || isLoading) return
+
+    const userMessage: Message = { role: "user", content: input.trim() }
+    const updatedMessages = [...messages, userMessage]
+    setMessages(updatedMessages)
+    setInput("")
+    setIsLoading(true)
+
+    try {
+      const res = await fetch('/api/facturito', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: updatedMessages }),
+      })
+
+      const data = await res.json()
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: data.content || "Lo siento, no pude procesar tu pregunta. Inténtalo de nuevo.",
+      }
+      setMessages((prev) => [...prev, assistantMessage])
+    } catch (err) {
+      console.error('Chat error:', err)
+      const errorMessage: Message = {
+        role: "assistant",
+        content: "Ha ocurrido un error de conexión. Por favor, inténtalo de nuevo.",
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
     // Add user message
     const userMessage: Message = { role: "user", content: input.trim() }
