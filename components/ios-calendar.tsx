@@ -186,7 +186,7 @@ export default function IOSCalendar({
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white flex items-center">
               <CalendarIcon className="h-5 w-5 mr-2" />
-              Calendario Fiscal 2026
+              Calendario Fiscal 2025
             </h2>
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/20" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -313,36 +313,36 @@ export default function IOSCalendar({
               )}
             </div>
           </div>
+        </div>
 
-          {/* Disclaimer legal */}
-          <p className="text-xs text-gray-500 mt-4 italic text-center">
-            Calendario orientativo basado en el{" "}
-            
-              href="https://sede.agenciatributaria.gob.es/Sede/calendario-contribuyente.html"
-              target="_blank"
+        <div className="bg-gray-50 p-4 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center mr-4">
+                <div className="h-3 w-3 rounded-full mr-1" style={{ background: '#dc2626' }}></div>
+                <span>Urgente</span>
+              </div>
+              <div className="flex items-center">
+                <div className="h-3 w-3 rounded-full mr-1" style={{ background: 'var(--orange)' }}></div>
+                <span>Normal</span>
+              </div>
+            </div>
+            <Button variant="default" size="sm" style={{ background: 'var(--orange)' }} className="hover:opacity-90" onClick={onClose}>
+              Cerrar
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500 italic">
+            {"Calendario orientativo basado en el Calendario del Contribuyente 2026 de la AEAT. Los vencimientos pueden ajustarse por festivos autonómicos o locales. Consulta siempre la "}
+            <a 
+              href="https://sede.agenciatributaria.gob.es/Sede/calendario-contribuyente.html" 
+              target="_blank" 
               rel="noopener noreferrer"
               className="underline hover:text-gray-700"
             >
-              Calendario del Contribuyente 2026 de la AEAT
+              AEAT
             </a>
-            . Los vencimientos pueden ajustarse por festivos autonómicos o locales. Consulta siempre la AEAT antes de presentar.
+            {" antes de presentar."}
           </p>
-        </div>
-
-        <div className="bg-gray-50 p-4 border-t border-gray-200 flex items-center justify-between">
-          <div className="flex items-center text-sm text-gray-600">
-            <div className="flex items-center mr-4">
-              <div className="h-3 w-3 rounded-full mr-1" style={{ background: '#dc2626' }}></div>
-              <span>Urgente</span>
-            </div>
-            <div className="flex items-center">
-              <div className="h-3 w-3 rounded-full mr-1" style={{ background: 'var(--orange)' }}></div>
-              <span>Normal</span>
-            </div>
-          </div>
-          <Button variant="default" size="sm" style={{ background: 'var(--orange)' }} className="hover:opacity-90" onClick={onClose}>
-            Cerrar
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
