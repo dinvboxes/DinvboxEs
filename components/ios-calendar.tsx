@@ -47,7 +47,7 @@ const CalendarDay = ({
 
   return (
     <div
-      className={`h-10 w-10 flex items-center justify-center rounded-full mx-auto
+      className={`h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-full mx-auto text-xs sm:text-sm
         ${!isCurrentMonth ? "text-gray-300" : ""}
         ${isSelected ? "text-white" : ""}
         ${isTodayDate && !isSelected ? "border" : ""}
@@ -63,7 +63,7 @@ const CalendarDay = ({
         {day.getDate()}
         {eventosDelDia.length > 0 && !isSelected && (
           <div
-            className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 h-1 w-1 rounded-full"
+            className="absolute -bottom-2 sm:-bottom-3 left-1/2 transform -translate-x-1/2 h-1 w-1 rounded-full"
             style={{ background: hasUrgentEvent ? '#dc2626' : 'var(--orange)' }}
           ></div>
         )}
@@ -82,12 +82,12 @@ const EventoItem = ({ evento }: { evento: EventoFiscal }) => {
         background: evento.urgente ? '#fef2f2' : 'rgba(255,144,21,0.1)'
       }}
     >
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="font-medium">{evento.descripcion}</p>
-          <p className="text-sm text-gray-500">Modelo {evento.modelo}</p>
+      <div className="flex justify-between items-start gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-sm sm:text-base break-words">{evento.descripcion}</p>
+          <p className="text-xs sm:text-sm text-gray-500">Modelo {evento.modelo}</p>
         </div>
-        {evento.urgente && <Badge className="bg-red-100 text-red-600 border-red-200">Urgente</Badge>}
+        {evento.urgente && <Badge className="bg-red-100 text-red-600 border-red-200 flex-shrink-0 text-xs">Urgente</Badge>}
       </div>
     </div>
   )
@@ -152,7 +152,7 @@ export default function IOSCalendar({
 
   // Agregar días vacíos al principio
   for (let i = 0; i < startDay; i++) {
-    days.push(<div key={`empty-${i}`} className="h-10 w-10"></div>)
+    days.push(<div key={`empty-${i}`} className="h-8 w-8 sm:h-10 sm:w-10"></div>)
   }
 
   // Agregar los días del mes
@@ -171,7 +171,7 @@ export default function IOSCalendar({
     // Si es el final de la semana o el último día del mes
     if ((startDay + i + 1) % 7 === 0 || i === daysInMonth.length - 1) {
       rows.push(
-        <div key={`row-${i}`} className="grid grid-cols-7 gap-1 mb-1">
+        <div key={`row-${i}`} className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
           {days}
         </div>,
       )
@@ -181,39 +181,37 @@ export default function IOSCalendar({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-3xl p-0 overflow-hidden">
-        <div className="p-4" style={{ background: 'var(--navy)' }}>
+      <DialogContent className="max-w-3xl w-[95vw] sm:w-auto p-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="p-3 sm:p-4 flex-shrink-0" style={{ background: 'var(--navy)' }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white flex items-center">
-              <CalendarIcon className="h-5 w-5 mr-2" />
-              Calendario Fiscal 2025
+            <h2 className="text-base sm:text-xl font-bold text-white flex items-center min-w-0">
+              <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+              <span className="truncate">Calendario Fiscal 2026</span>
             </h2>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20 flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
+        <div className="p-3 sm:p-4 flex-1 overflow-y-auto">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div className="flex items-center">
               <Tabs
                 defaultValue={tipoContribuyente}
                 onValueChange={(value) => setTipoContribuyente(value as TipoContribuyente)}
+                className="w-full sm:w-auto"
               >
-                <TabsList className="bg-gray-100">
+                <TabsList className="bg-gray-100 w-full sm:w-auto">
                   <TabsTrigger
                     value="autonomos"
-                    className="data-[state=active]:text-white"
-                    style={{ '--tw-bg-opacity': 1 } as React.CSSProperties}
-                    data-active-style={{ background: 'var(--orange)' }}
+                    className="data-[state=active]:text-white flex-1 sm:flex-none text-xs sm:text-sm"
                   >
                     Autónomos
                   </TabsTrigger>
                   <TabsTrigger
                     value="sociedades"
-                    className="data-[state=active]:text-white"
-                    style={{ '--tw-bg-opacity': 1 } as React.CSSProperties}
+                    className="data-[state=active]:text-white flex-1 sm:flex-none text-xs sm:text-sm"
                   >
                     Sociedades
                   </TabsTrigger>
@@ -221,20 +219,22 @@ export default function IOSCalendar({
               </Tabs>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-end space-x-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className={viewMode === "calendar" ? "bg-gray-100" : ""}
+                className={`h-8 w-8 sm:h-10 sm:w-10 ${viewMode === "calendar" ? "bg-gray-100" : ""}`}
                 onClick={() => setViewMode("calendar")}
+                aria-label="Vista de calendario"
               >
                 <Grid className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className={viewMode === "agenda" ? "bg-gray-100" : ""}
+                className={`h-8 w-8 sm:h-10 sm:w-10 ${viewMode === "agenda" ? "bg-gray-100" : ""}`}
                 onClick={() => setViewMode("agenda")}
+                aria-label="Vista de agenda"
               >
                 <List className="h-4 w-4" />
               </Button>
@@ -243,24 +243,24 @@ export default function IOSCalendar({
 
           {viewMode === "calendar" ? (
             <div className="bg-white rounded-lg border border-gray-200">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <Button variant="ghost" size="icon" onClick={prevMonth}>
+              <div className="flex items-center justify-between p-2 sm:p-4 border-b border-gray-200">
+                <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8 sm:h-10 sm:w-10">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <h3 className="font-medium">
+                <h3 className="font-medium text-sm sm:text-base">
                   {format(currentMonth, "MMMM yyyy", { locale: es }).charAt(0).toUpperCase() +
                     format(currentMonth, "MMMM yyyy", { locale: es }).slice(1)}
                 </h3>
-                <Button variant="ghost" size="icon" onClick={nextMonth}>
+                <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8 sm:h-10 sm:w-10">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
 
-              <div className="p-4">
+              <div className="p-2 sm:p-4">
                 {/* Días de la semana */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
+                <div className="grid grid-cols-7 gap-0.5 sm:gap-1 mb-2">
                   {weekDays.map((day) => (
-                    <div key={day} className="text-center text-sm font-medium text-gray-500">
+                    <div key={day} className="text-center text-[10px] sm:text-sm font-medium text-gray-500">
                       {day}
                     </div>
                   ))}
@@ -271,8 +271,8 @@ export default function IOSCalendar({
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-medium mb-4">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4">
+              <h3 className="font-medium mb-4 text-sm sm:text-base">
                 Eventos del mes:{" "}
                 {format(currentMonth, "MMMM yyyy", { locale: es }).charAt(0).toUpperCase() +
                   format(currentMonth, "MMMM yyyy", { locale: es }).slice(1)}
@@ -284,15 +284,17 @@ export default function IOSCalendar({
                     .sort((a, b) => a.fecha.getTime() - b.fecha.getTime())
                     .map((evento) => (
                       <div key={evento.id} className="flex items-start">
-                        <div className="w-12 text-center mr-4">
-                          <div className="font-bold">{format(evento.fecha, "d")}</div>
-                          <div className="text-xs text-gray-500">{format(evento.fecha, "EEE", { locale: es })}</div>
+                        <div className="w-10 sm:w-12 text-center mr-3 sm:mr-4 flex-shrink-0">
+                          <div className="font-bold text-sm sm:text-base">{format(evento.fecha, "d")}</div>
+                          <div className="text-[10px] sm:text-xs text-gray-500">{format(evento.fecha, "EEE", { locale: es })}</div>
                         </div>
-                        <EventoItem evento={evento} />
+                        <div className="flex-1 min-w-0">
+                          <EventoItem evento={evento} />
+                        </div>
                       </div>
                     ))
                 ) : (
-                  <p className="text-center text-gray-500 py-4">No hay eventos este mes</p>
+                  <p className="text-center text-gray-500 py-4 text-sm">No hay eventos este mes</p>
                 )}
               </div>
             </div>
@@ -300,24 +302,24 @@ export default function IOSCalendar({
 
           {/* Panel lateral con eventos del día seleccionado */}
           <div className="mt-4">
-            <h3 className="font-medium mb-2 flex items-center">
-              <CalendarIcon className="h-4 w-4 mr-1" style={{ color: 'var(--orange)' }} />
-              Eventos para {format(selectedDate, "d MMMM yyyy", { locale: es })}
+            <h3 className="font-medium mb-2 flex items-center text-sm sm:text-base">
+              <CalendarIcon className="h-4 w-4 mr-1 flex-shrink-0" style={{ color: 'var(--orange)' }} />
+              <span className="truncate">Eventos para {format(selectedDate, "d MMMM yyyy", { locale: es })}</span>
             </h3>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-4 max-h-[200px] overflow-y-auto">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 max-h-[200px] overflow-y-auto">
               {eventosDelDia.length > 0 ? (
                 eventosDelDia.map((evento) => <EventoItem key={evento.id} evento={evento} />)
               ) : (
-                <p className="text-center text-gray-500 py-4">No hay eventos para este día</p>
+                <p className="text-center text-gray-500 py-4 text-sm">No hay eventos para este día</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-50 p-4 border-t border-gray-200">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center text-sm text-gray-600">
+        <div className="bg-gray-50 p-3 sm:p-4 border-t border-gray-200 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+            <div className="flex items-center text-xs sm:text-sm text-gray-600">
               <div className="flex items-center mr-4">
                 <div className="h-3 w-3 rounded-full mr-1" style={{ background: '#dc2626' }}></div>
                 <span>Urgente</span>
@@ -327,11 +329,11 @@ export default function IOSCalendar({
                 <span>Normal</span>
               </div>
             </div>
-            <Button variant="default" size="sm" style={{ background: 'var(--orange)' }} className="hover:opacity-90" onClick={onClose}>
+            <Button variant="default" size="sm" style={{ background: 'var(--orange)' }} className="hover:opacity-90 w-full sm:w-auto" onClick={onClose}>
               Cerrar
             </Button>
           </div>
-          <p className="text-xs text-gray-500 italic">
+          <p className="text-[11px] sm:text-xs text-gray-500 italic leading-relaxed">
             {"Calendario orientativo basado en el Calendario del Contribuyente 2026 de la AEAT. Los vencimientos pueden ajustarse por festivos autonómicos o locales. Consulta siempre la "}
             <a 
               href="https://sede.agenciatributaria.gob.es/Sede/calendario-contribuyente.html" 
