@@ -223,9 +223,9 @@ export default function Home() {
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { idx: 'Cumplimiento', title: 'Conforme a la AEAT. Sin que tengas que entenderla.', desc: 'Cada factura cumple con VERI*FACTU y con el Real Decreto 238/2026. Nosotros actualizamos el sistema cada vez que cambia la norma.', img: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%2023%20sept%202025%2C%2017_28_33-4WZFsEe1Nt4hWpUCA2DAoEjX4ieypC.png' },
-              { idx: 'Velocidad', title: 'Emite tu primera factura en 2 minutos.', desc: 'Sin formación, sin manuales, sin curva de aprendizaje. Das de alta tu empresa, añades un cliente y facturas.', img: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/VoHYT-56dalackLjlWImnSdN3kFirdm3Q5sX.jpg' },
-              { idx: 'Facturito', title: 'Tu copiloto fiscal con IA.', desc: 'Pregúntale en lenguaje llano: "¿puedo deducir esto?", "¿qué IVA aplico a un cliente de Canarias?". Te responde con referencia a la norma.', img: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/TDJa7-5drl5Rtaq4pBHTJZCM9FVVO7QdttHI.jpg' },
+              { idx: 'Cumplimiento', title: 'Conforme a la AEAT. Sin que tengas que entenderla.', desc: 'Cada factura cumple con VERI*FACTU y con el Real Decreto 238/2026. Nosotros actualizamos el sistema cada vez que cambia la norma.', img: '/images/cumplimiento.png' },
+              { idx: 'Velocidad', title: 'Emite tu primera factura en 2 minutos.', desc: 'Sin formación, sin manuales, sin curva de aprendizaje. Das de alta tu empresa, añades un cliente y facturas.', img: '/images/velocidad.jpg' },
+              { idx: 'Facturito', title: 'Tu copiloto fiscal con IA.', desc: 'Pregúntale en lenguaje llano: "¿puedo deducir esto?", "¿qué IVA aplico a un cliente de Canarias?". Te responde con referencia a la norma.', img: '/images/facturito.png' },
             ].map((card, i) => (
               <div 
                 key={i}
