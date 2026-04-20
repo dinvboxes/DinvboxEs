@@ -176,7 +176,7 @@ export function FacturitoChat() {
                 onClick={maximizeChat}
               >
                 <div className="relative h-8 w-8 overflow-hidden rounded-full">
-                  <Image src="/images/facturito-ai.jpeg" alt="Facturito" fill className="object-cover" />
+                  <Image src="/facturito-robot.png" alt="Facturito" fill className="object-cover" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">Facturito</p>
@@ -190,7 +190,7 @@ export function FacturitoChat() {
                 <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 p-3 text-gray-800 shadow-sm">
                   <div className="flex items-center gap-2">
                     <div className="relative h-8 w-8 overflow-hidden rounded-full border border-orange-200">
-                      <Image src="/images/facturito-ai.jpeg" alt="Facturito" fill className="object-cover" />
+                      <Image src="/facturito-robot.png" alt="Facturito" fill className="object-cover" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold">Facturito</h3>
