@@ -53,13 +53,24 @@ export default function Footer() {
         </div>
         
         <div className="footer-bottom">
-          <div>&copy; 2026 Dinvbox. Todos los derechos reservados.</div>
+          <div>&copy; 2026 Dinvbox S.L. Todos los derechos reservados.</div>
           <div className="legal">
-            <Link href="#">Términos y condiciones</Link>
-            <Link href="/privacidad">Privacidad</Link>
-            <Link href="#">Cookies</Link>
-            <Link href="#">Declaración responsable</Link>
-            <Link href="#">Declaración API</Link>
+            <Link href="/privacidad">Privacidad y Condiciones</Link>
+            <Link href="/cookies">Cookies</Link>
+            <a 
+              href="https://drive.google.com/file/d/1GaMbUQj8OvFFhgZZYRQLpldXIb-0H3L2/view" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Declaración responsable
+            </a>
+            <a 
+              href="https://drive.google.com/file/d/1lXRYsmY5lXXN8lALpOvFL19oz2DFN4FS/view" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Declaración API
+            </a>
             <Link href="/juego" style={{ color: 'var(--orange)' }}>Facturito Jump</Link>
           </div>
         </div>
