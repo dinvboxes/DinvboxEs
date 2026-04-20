@@ -272,7 +272,7 @@ export default function ProductoPage() {
               { 
                 n: '03', 
                 q: '¿Prefieres la solución pública gratuita de la AEAT?', 
-                a: 'Es una opción válida si emites muy pocas facturas y no te importa gestionar la norma por tu cuenta. <strong>No incluye alertas, calendario fiscal, soporte ni IA.</strong> Si valoras tu tiempo, Dinvbox te sale mucho m��s barato que las horas que pierdes.' 
+                a: 'Es una opción válida si emites muy pocas facturas y no te importa gestionar la norma por tu cuenta. <strong>No incluye alertas, calendario fiscal, soporte ni IA.</strong> Si valoras tu tiempo, Dinvbox te sale mucho más barato que las horas que pierdes.' 
               },
             ].map((step, i) => (
               <div 
