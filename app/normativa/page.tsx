@@ -87,8 +87,8 @@ export default function NormativaPage() {
                   'Firma hash que garantiza la integridad del documento.',
                   'Envio automatico a la AEAT en el momento de la emision.',
                   'Registro inalterable de todas las operaciones.',
-                  'Obligatorio para desarrolladores desde enero 2027.',
-                  'Obligatorio para contribuyentes desde julio 2027.',
+                  'Obligatorio para empresas desde enero 2027.',
+                  'Obligatorio para autonomos desde julio 2027.',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'var(--white-60)' }}>
                     <span style={{ color: 'var(--orange)' }}>&rarr;</span>
