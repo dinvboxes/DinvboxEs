@@ -1,84 +1,83 @@
 import { NextResponse } from 'next/server'
-import { findBestMatch } from '@/data/facturito-knowledge-base'
 
 export const runtime = 'edge'
-export const maxDuration = 300
 
-type Message = {
-  role: 'user' | 'assistant'
-  content: string
+const JWT_SECRET = process.env.JWT_SECRET
+const TOKEN_TTL_SECONDS = 300  // 5 minutos
+
+// ----- Firma HS256 con Web Crypto API -----
+
+async function signJWT(payload: Record<string, unknown>, secret: string): Promise<string> {
+  const header = { alg: 'HS256', typ: 'JWT' }
+  
+  const headerB64 = base64urlEncode(JSON.stringify(header))
+  const payloadB64 = base64urlEncode(JSON.stringify(payload))
+  const data = `${headerB64}.${payloadB64}`
+
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  )
+
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    new TextEncoder().encode(data)
+  )
+
+  const signatureB64 = base64urlEncode(new Uint8Array(signature))
+  return `${data}.${signatureB64}`
 }
 
-const AI_GATEWAY_URL = process.env.AI_GATEWAY_URL
-const AI_GATEWAY_TOKEN = process.env.AI_GATEWAY_TOKEN
+function base64urlEncode(input: string | Uint8Array): string {
+  let str: string
+  if (typeof input === 'string') {
+    str = btoa(unescape(encodeURIComponent(input)))
+  } else {
+    let binary = ''
+    for (let i = 0; i < input.byteLength; i++) {
+      binary += String.fromCharCode(input[i])
+    }
+    str = btoa(binary)
+  }
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+}
+
+// ----- Handler -----
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const messages: Message[] = body.messages || []
-    
-    if (!Array.isArray(messages) || messages.length === 0) {
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET not configured')
       return NextResponse.json(
-        { error: 'Mensaje requerido' },
-        { status: 400 }
+        { error: 'Service not configured' },
+        { status: 503 }
       )
     }
 
-    // Limitar historial a últimos 15 mensajes para no sobrecargar
-    const trimmedMessages = messages.slice(-15)
-    const lastUserMessage = trimmedMessages[trimmedMessages.length - 1]
-
-    // Si el gateway no está configurado, usamos el knowledge base local
-    if (!AI_GATEWAY_URL || !AI_GATEWAY_TOKEN) {
-      console.warn('AI Gateway not configured, using fallback')
-      return fallbackResponse(lastUserMessage?.content || '')
+    const now = Math.floor(Date.now() / 1000)
+    const payload = {
+      iss: 'dinvbox',              // issuer
+      sub: 'facturito-chat',        // subject
+      iat: now,                     // issued at
+      exp: now + TOKEN_TTL_SECONDS, // expires in 5 min
+      jti: crypto.randomUUID(),     // unique id
     }
 
-    // Obtener origin de la request para pasarlo al gateway
-    const origin = request.headers.get('origin') || 
-                   `https://${request.headers.get('host') || 'dinvbox.es'}`
-
-    // Llamar al gateway con timeout de 90s
-    const gatewayRes = await fetch(AI_GATEWAY_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-gateway-token': AI_GATEWAY_TOKEN,
-        'Origin': origin,
-      },
-      body: JSON.stringify({ messages: trimmedMessages }),
-      signal: AbortSignal.timeout(90000),
-    })
-
-    if (gatewayRes.status === 429) {
-      return NextResponse.json(
-        {
-          content: 'Has enviado muchos mensajes en poco tiempo. Por favor, espera unos minutos e inténtalo de nuevo.',
-        },
-        { status: 200 }
-      )
-    }
-
-    if (!gatewayRes.ok) {
-      console.error('Gateway error:', gatewayRes.status)
-      return fallbackResponse(lastUserMessage?.content || '')
-    }
-
-    const data = await gatewayRes.json()
+    const token = await signJWT(payload, JWT_SECRET)
 
     return NextResponse.json({
-      content: data.content || 'Lo siento, no pude procesar tu consulta. Inténtalo de nuevo.',
+      token,
+      expiresIn: TOKEN_TTL_SECONDS,
     })
   } catch (err) {
-    console.error('Facturito endpoint error:', err)
-    return NextResponse.json({
-      content: 'Ha ocurrido un error. Por favor, inténtalo de nuevo en unos momentos.',
-    })
+    console.error('Token endpoint error:', err)
+    return NextResponse.json(
+      { error: 'Token generation failed' },
+      { status: 500 }
+    )
   }
-}
-
-// Fallback al knowledge base local cuando el gateway falla
-function fallbackResponse(userMessage: string) {
-  const answer = findBestMatch(userMessage)
-  return NextResponse.json({ content: answer })
 }
