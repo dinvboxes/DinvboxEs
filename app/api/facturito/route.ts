@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { findBestMatch } from '@/data/facturito-knowledge-base'
 
 export const runtime = 'edge'
+export const maxDuration = 300
 
 type Message = {
   role: 'user' | 'assistant'
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
     const origin = request.headers.get('origin') || 
                    `https://${request.headers.get('host') || 'dinvbox.es'}`
 
-    // Llamar al gateway
+    // Llamar al gateway con timeout de 90s
     const gatewayRes = await fetch(AI_GATEWAY_URL, {
       method: 'POST',
       headers: {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
         'Origin': origin,
       },
       body: JSON.stringify({ messages: trimmedMessages }),
-      signal: AbortSignal.timeout(28000),
+      signal: AbortSignal.timeout(90000),
     })
 
     if (gatewayRes.status === 429) {
