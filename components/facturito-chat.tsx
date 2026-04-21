@@ -15,6 +15,10 @@ type Message = {
   content: string
 }
 
+// URL del gateway (pública, el GATEWAY está protegido por JWT firmado)
+const GATEWAY_URL = "https://ai.luxpont.es/es/ask"
+const TOKEN_URL = "/api/facturito/token"
+
 const initialMessages: Message[] = [
   {
     role: "assistant",
@@ -27,21 +31,17 @@ const initialSuggestions = [
   "¿Cumple con VeriFactu?",
   "¿Qué tipos de facturas puedo hacer?",
   "¿Puedo facturar desde el móvil?",
-  "¿Qué incluye el timbre?",
   "¿Mis datos están seguros?",
 ]
 
 // ---------- RENDERIZADO DE MARKDOWN BÁSICO ----------
 
-// Procesa negritas **texto** e itálicas *texto* dentro de una línea
 const renderInline = (text: string): React.ReactNode[] => {
-  // Split por negritas
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return <strong key={i}>{part.slice(2, -2)}</strong>
     }
-    // Dentro de partes normales, procesar itálicas
     const italicParts = part.split(/(\*[^*]+\*)/g)
     return italicParts.map((ip, j) => {
       if (ip.startsWith('*') && ip.endsWith('*') && ip.length > 2) {
@@ -52,17 +52,14 @@ const renderInline = (text: string): React.ReactNode[] => {
   })
 }
 
-// Renderizado simple de markdown: headers, listas, separadores, negritas
 const renderMarkdown = (text: string): React.ReactNode => {
   const lines = text.split('\n')
   
   return lines.map((line, i) => {
-    // Separadores horizontales
     if (line.trim() === '---' || line.trim() === '***') {
       return <hr key={i} className="my-2 border-gray-300" />
     }
     
-    // Headers ### y más
     if (line.startsWith('### ')) {
       return (
         <div key={i} className="font-semibold text-sm mt-2 mb-1">
@@ -87,7 +84,6 @@ const renderMarkdown = (text: string): React.ReactNode => {
       )
     }
     
-    // Items de lista con - o *
     const bulletMatch = line.match(/^(\s*)[-*]\s+(.+)$/)
     if (bulletMatch) {
       const indent = bulletMatch[1].length
@@ -103,7 +99,6 @@ const renderMarkdown = (text: string): React.ReactNode => {
       )
     }
     
-    // Items de lista numerados (1. 2. etc.)
     const numberedMatch = line.match(/^(\s*)(\d+)\.\s+(.+)$/)
     if (numberedMatch) {
       const indent = numberedMatch[1].length
@@ -119,14 +114,27 @@ const renderMarkdown = (text: string): React.ReactNode => {
       )
     }
     
-    // Línea vacía → espacio
     if (line.trim() === '') {
       return <div key={i} className="h-2" />
     }
     
-    // Párrafo normal
     return <div key={i}>{renderInline(line)}</div>
   })
+}
+
+// ---------- GESTIÓN DE TOKEN JWT ----------
+// Pedimos token fresco antes de cada request (simple y seguro)
+
+async function getToken(): Promise<string> {
+  const res = await fetch(TOKEN_URL, { method: 'POST' })
+  if (!res.ok) {
+    throw new Error(`Token request failed: ${res.status}`)
+  }
+  const data = await res.json()
+  if (!data.token) {
+    throw new Error('No token in response')
+  }
+  return data.token
 }
 
 // ---------- COMPONENTE ----------
@@ -137,19 +145,18 @@ export function FacturitoChat() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingHint, setLoadingHint] = useState("Consultando normativa…")
   const [hasInteracted, setHasInteracted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const [suggestions, setSuggestions] = useState<string[]>(initialSuggestions)
 
-  // Scroll to bottom of messages
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages])
 
-  // Focus input when chat opens
   useEffect(() => {
     if (isOpen && !isMinimized && inputRef.current) {
       inputRef.current.focus()
@@ -157,10 +164,7 @@ export function FacturitoChat() {
   }, [isOpen, isMinimized])
 
   const toggleChat = () => {
-    if (!hasInteracted) {
-      setHasInteracted(true)
-    }
-
+    if (!hasInteracted) setHasInteracted(true)
     if (isOpen && isMinimized) {
       setIsMinimized(false)
     } else {
@@ -198,13 +202,42 @@ export function FacturitoChat() {
     setMessages(updatedMessages)
     setInput("")
     setIsLoading(true)
+    setLoadingHint("Consultando normativa…")
+
+    // Hints progresivos cada 10s para que el usuario no sienta cuelgue
+    const hintTimers: ReturnType<typeof setTimeout>[] = []
+    hintTimers.push(setTimeout(() => setLoadingHint("Buscando referencias actualizadas…"), 10000))
+    hintTimers.push(setTimeout(() => setLoadingHint("Cruzando fuentes oficiales…"), 25000))
+    hintTimers.push(setTimeout(() => setLoadingHint("Preparando la respuesta…"), 45000))
 
     try {
-      const res = await fetch('/api/facturito', {
+      // 1. Pedir token JWT a Vercel (<1s)
+      const token = await getToken()
+
+      // 2. Llamar al Worker directamente (hasta 5 min)
+      const historyTrimmed = updatedMessages.slice(-15)
+      
+      const res = await fetch(GATEWAY_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: updatedMessages }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ messages: historyTrimmed }),
       })
+
+      if (res.status === 429) {
+        const assistantMessage: Message = {
+          role: "assistant",
+          content: "Has enviado muchos mensajes en poco tiempo. Espera unos minutos e inténtalo de nuevo.",
+        }
+        setMessages((prev) => [...prev, assistantMessage])
+        return
+      }
+
+      if (!res.ok) {
+        throw new Error(`Gateway error: ${res.status}`)
+      }
 
       const data = await res.json()
       const assistantMessage: Message = {
@@ -220,6 +253,7 @@ export function FacturitoChat() {
       }
       setMessages((prev) => [...prev, errorMessage])
     } finally {
+      hintTimers.forEach(clearTimeout)
       setIsLoading(false)
     }
   }
@@ -286,7 +320,6 @@ export function FacturitoChat() {
               </div>
             ) : (
               <>
-                {/* Chat Header */}
                 <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 p-3 text-gray-800 shadow-sm">
                   <div className="flex items-center gap-2">
                     <div className="relative h-8 w-8 overflow-hidden rounded-full border border-orange-200">
@@ -315,7 +348,6 @@ export function FacturitoChat() {
                   </div>
                 </div>
 
-                {/* Chat Messages */}
                 <div className="flex-1 overflow-y-auto p-3">
                   <div className="space-y-3">
                     {messages.map((message, index) => (
@@ -337,7 +369,7 @@ export function FacturitoChat() {
                         <div className="max-w-[85%] rounded-lg bg-gray-100 p-2.5 text-gray-800">
                           <div className="flex items-center gap-2">
                             <Loader2 className="h-4 w-4 animate-spin text-gray-600" />
-                            <span className="text-xs text-gray-500">Consultando normativa...</span>
+                            <span className="text-xs text-gray-500">{loadingHint}</span>
                           </div>
                         </div>
                       </div>
@@ -352,7 +384,6 @@ export function FacturitoChat() {
                   </div>
                 </div>
 
-                {/* Chat Input */}
                 <div className="border-t border-gray-200 p-3">
                   <div className="flex gap-2">
                     <Textarea
