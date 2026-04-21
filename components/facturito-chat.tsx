@@ -27,8 +27,109 @@ const initialSuggestions = [
   "¿Cumple con VeriFactu?",
   "¿Qué tipos de facturas puedo hacer?",
   "¿Puedo facturar desde el móvil?",
+  "¿Qué incluye el timbre?",
   "¿Mis datos están seguros?",
 ]
+
+// ---------- RENDERIZADO DE MARKDOWN BÁSICO ----------
+
+// Procesa negritas **texto** e itálicas *texto* dentro de una línea
+const renderInline = (text: string): React.ReactNode[] => {
+  // Split por negritas
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>
+    }
+    // Dentro de partes normales, procesar itálicas
+    const italicParts = part.split(/(\*[^*]+\*)/g)
+    return italicParts.map((ip, j) => {
+      if (ip.startsWith('*') && ip.endsWith('*') && ip.length > 2) {
+        return <em key={`${i}-${j}`}>{ip.slice(1, -1)}</em>
+      }
+      return <span key={`${i}-${j}`}>{ip}</span>
+    })
+  })
+}
+
+// Renderizado simple de markdown: headers, listas, separadores, negritas
+const renderMarkdown = (text: string): React.ReactNode => {
+  const lines = text.split('\n')
+  
+  return lines.map((line, i) => {
+    // Separadores horizontales
+    if (line.trim() === '---' || line.trim() === '***') {
+      return <hr key={i} className="my-2 border-gray-300" />
+    }
+    
+    // Headers ### y más
+    if (line.startsWith('### ')) {
+      return (
+        <div key={i} className="font-semibold text-sm mt-2 mb-1">
+          {renderInline(line.slice(4))}
+        </div>
+      )
+    }
+    
+    if (line.startsWith('## ')) {
+      return (
+        <div key={i} className="font-bold text-sm mt-2 mb-1">
+          {renderInline(line.slice(3))}
+        </div>
+      )
+    }
+
+    if (line.startsWith('# ')) {
+      return (
+        <div key={i} className="font-bold text-base mt-2 mb-1">
+          {renderInline(line.slice(2))}
+        </div>
+      )
+    }
+    
+    // Items de lista con - o *
+    const bulletMatch = line.match(/^(\s*)[-*]\s+(.+)$/)
+    if (bulletMatch) {
+      const indent = bulletMatch[1].length
+      return (
+        <div 
+          key={i} 
+          className="flex gap-1.5" 
+          style={{ marginLeft: `${8 + indent * 8}px` }}
+        >
+          <span className="text-gray-500 flex-shrink-0">•</span>
+          <span className="flex-1">{renderInline(bulletMatch[2])}</span>
+        </div>
+      )
+    }
+    
+    // Items de lista numerados (1. 2. etc.)
+    const numberedMatch = line.match(/^(\s*)(\d+)\.\s+(.+)$/)
+    if (numberedMatch) {
+      const indent = numberedMatch[1].length
+      return (
+        <div 
+          key={i} 
+          className="flex gap-1.5" 
+          style={{ marginLeft: `${8 + indent * 8}px` }}
+        >
+          <span className="text-gray-500 flex-shrink-0">{numberedMatch[2]}.</span>
+          <span className="flex-1">{renderInline(numberedMatch[3])}</span>
+        </div>
+      )
+    }
+    
+    // Línea vacía → espacio
+    if (line.trim() === '') {
+      return <div key={i} className="h-2" />
+    }
+    
+    // Párrafo normal
+    return <div key={i}>{renderInline(line)}</div>
+  })
+}
+
+// ---------- COMPONENTE ----------
 
 export function FacturitoChat() {
   const [isOpen, setIsOpen] = useState(false)
@@ -175,7 +276,7 @@ export function FacturitoChat() {
                 onClick={maximizeChat}
               >
                 <div className="relative h-8 w-8 overflow-hidden rounded-full">
-                  <Image src="/facturito-robot.png" alt="Facturito" fill className="object-cover" />
+                  <Image src="/images/facturito-ai.jpeg" alt="Facturito" fill className="object-cover" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">Facturito</p>
@@ -185,11 +286,11 @@ export function FacturitoChat() {
               </div>
             ) : (
               <>
-                {/* Chat Header - Changed to silver gradient */}
+                {/* Chat Header */}
                 <div className="flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 p-3 text-gray-800 shadow-sm">
                   <div className="flex items-center gap-2">
                     <div className="relative h-8 w-8 overflow-hidden rounded-full border border-orange-200">
-                      <Image src="/facturito-robot.png" alt="Facturito" fill className="object-cover" />
+                      <Image src="/images/facturito-ai.jpeg" alt="Facturito" fill className="object-cover" />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold">Facturito</h3>
@@ -220,18 +321,24 @@ export function FacturitoChat() {
                     {messages.map((message, index) => (
                       <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div
-                          className={`max-w-[85%] rounded-lg p-2.5 text-sm ${
+                          className={`max-w-[85%] rounded-lg p-2.5 text-sm leading-relaxed ${
                             message.role === "user" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-800"
                           }`}
                         >
-                          {message.content}
+                          {message.role === "assistant" 
+                            ? renderMarkdown(message.content)
+                            : message.content
+                          }
                         </div>
                       </div>
                     ))}
                     {isLoading && (
                       <div className="flex justify-start">
                         <div className="max-w-[85%] rounded-lg bg-gray-100 p-2.5 text-gray-800">
-                          <Loader2 className="h-4 w-4 animate-spin text-gray-600" />
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin text-gray-600" />
+                            <span className="text-xs text-gray-500">Consultando normativa...</span>
+                          </div>
                         </div>
                       </div>
                     )}
