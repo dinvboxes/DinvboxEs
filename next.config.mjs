@@ -22,7 +22,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://*.emailjs.com https://api.emailjs.com https://vercel.live https://*.vercel.com wss://*.vercel.live https://unpkg.com https://cdn.jsdelivr.net",
+             "connect-src 'self' https://ai.luxpont.es https://*.emailjs.com https://api.emailjs.com https://vercel.live https://*.vercel.com wss://*.vercel.live https://unpkg.com https://cdn.jsdelivr.net",
               "frame-src 'self' https://calendly.com https://*.calendly.com",
               "object-src 'none'",
               "base-uri 'self'",
